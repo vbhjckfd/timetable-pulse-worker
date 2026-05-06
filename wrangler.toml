@@ -1,0 +1,11 @@
+name = "timetable-pulse"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+[[durable_objects.bindings]]
+name = "PULSE_ROOM"
+class_name = "PulseRoom"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["PulseRoom"]
