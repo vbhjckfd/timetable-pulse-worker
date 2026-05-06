@@ -1,19 +1,19 @@
 # timetable-pulse-worker
 
-Cloudflare Worker that acts as a real-time WebSocket broadcast hub for public-transport vehicle positions, used by [lad.lviv.ua](https://lad.lviv.ua).
+Cloudflare Worker that acts as a real-time WebSocket broadcast hub for public-transport stop arrival timetable queries, used by [lad.lviv.ua](https://lad.lviv.ua).
 
 ## How it works
 
-- Vehicles (or a backend service) `POST /signal` with a `{ lat, lng, name }` payload.
-- Browser clients connect via `GET /ws` and receive every position update as a JSON message.
+- A client `POST /signal` with a `{ lat, lng, code }` payload representing a stop being queried for arrival times.
+- Browser clients connect via `GET /ws` and receive every stop query as a JSON message.
 - A single [Durable Object](https://developers.cloudflare.com/durable-objects/) (`PulseRoom`) holds all open WebSocket connections and fans out incoming signals.
 
 ## Endpoints
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| `GET` | `/ws` | — | WebSocket upgrade; streams position updates |
-| `POST` | `/signal` | `Authorization: Bearer <secret>` | Broadcast a vehicle position |
+| Method | Path      | Auth                             | Description                                       |
+| ------ | --------- | -------------------------------- | ------------------------------------------------- |
+| `GET`  | `/ws`     | —                                | WebSocket upgrade; streams stop timetable queries |
+| `POST` | `/signal` | `Authorization: Bearer <secret>` | Broadcast a stop arrival timetable query          |
 
 ### Signal payload
 
@@ -31,8 +31,8 @@ Cloudflare Worker that acts as a real-time WebSocket broadcast hub for public-tr
 
 ## Environment variables / secrets
 
-| Name | Required | Description |
-|------|----------|-------------|
+| Name                  | Required   | Description                               |
+| --------------------- | ---------- | ----------------------------------------- |
 | `PULSE_SIGNAL_SECRET` | Yes (prod) | Bearer token that protects `POST /signal` |
 
 Set it as a [Worker secret](https://developers.cloudflare.com/workers/configuration/secrets/):
