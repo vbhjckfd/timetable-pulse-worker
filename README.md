@@ -54,4 +54,4 @@ npm run dev        # wrangler dev — local Worker with hot reload
 npm run deploy     # wrangler deploy
 ```
 
-CI deploys automatically on every push to `main` via GitHub Actions (requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets).
+CI deploys automatically on every push to `master` via GitHub Actions (requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets).
