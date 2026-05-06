@@ -24,6 +24,14 @@ export default {
       return withCors(request, new Response(null, { status: 204 }));
     }
 
+    if (url.pathname === '/signal' && request.method === 'POST') {
+      const expected = env.PULSE_SIGNAL_SECRET;
+      const auth = request.headers.get('Authorization') ?? '';
+      if (!expected || auth !== `Bearer ${expected}`) {
+        return new Response('Unauthorized', { status: 401 });
+      }
+    }
+
     if (url.pathname === '/ws' || url.pathname === '/signal') {
       const id = env.PULSE_ROOM.idFromName('global');
       const stub = env.PULSE_ROOM.get(id);

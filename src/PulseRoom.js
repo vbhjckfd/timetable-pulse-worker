@@ -28,6 +28,10 @@ export class PulseRoom {
       if (typeof lat !== 'number' || typeof lng !== 'number') {
         return new Response('lat and lng required', { status: 422 });
       }
+      // Reject coordinates outside Lviv oblast bounding box
+      if (lat < 49.6 || lat > 50.2 || lng < 23.4 || lng > 24.8) {
+        return new Response('coordinates out of range', { status: 422 });
+      }
 
       const message = JSON.stringify({ lat, lng, name: name ?? null, ts: Date.now() });
       for (const ws of this.state.getWebSockets()) {

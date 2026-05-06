@@ -8,4 +8,10 @@ class_name = "PulseRoom"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["PulseRoom"]
+new_sqlite_classes = ["PulseRoom"]
+
+[[unsafe.bindings]]
+name = "RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1"
+simple = { limit = 10, period = 60 }
