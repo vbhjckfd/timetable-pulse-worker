@@ -18,15 +18,15 @@ Cloudflare Worker that acts as a real-time WebSocket broadcast hub for public-tr
 ### Signal payload
 
 ```json
-{ "lat": 49.84, "lng": 24.03, "name": "32A" }
+{ "lat": 49.84, "lng": 24.03, "code": 707 }
 ```
 
-`lat` and `lng` are required and must fall within the Lviv oblast bounding box. `name` (route label) is optional.
+`lat` and `lng` are required and must fall within the Lviv oblast bounding box. `code` (numeric stop code printed on physical stop signage) is optional.
 
 ### Message received by clients
 
 ```json
-{ "lat": 49.84, "lng": 24.03, "name": "32A", "ts": 1715000000000 }
+{ "lat": 49.84, "lng": 24.03, "code": 707, "ts": 1715000000000 }
 ```
 
 ## Environment variables / secrets
