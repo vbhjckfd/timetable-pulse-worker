@@ -39,13 +39,21 @@ export class PulseRoom {
         code: code ?? null,
         ts: Date.now(),
       });
+      let delivered = 0;
       for (const ws of this.state.getWebSockets()) {
         try {
           ws.send(message);
+          delivered += 1;
         } catch (_) {}
       }
 
-      return new Response("ok", { status: 200 });
+      // Fan-out size, read back by the entry worker and reported to New Relic.
+      // The room is the only place that knows it; a signal delivered to zero
+      // sockets is the interesting case (nobody is watching the map).
+      return new Response("ok", {
+        status: 200,
+        headers: { "X-Pulse-Subscribers": String(delivered) },
+      });
     }
 
     return new Response("Not found", { status: 404 });

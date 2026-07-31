@@ -31,15 +31,43 @@ Cloudflare Worker that acts as a real-time WebSocket broadcast hub for public-tr
 
 ## Environment variables / secrets
 
-| Name                  | Required   | Description                               |
-| --------------------- | ---------- | ----------------------------------------- |
-| `PULSE_SIGNAL_SECRET` | Yes (prod) | Bearer token that protects `POST /signal` |
+| Name                    | Required   | Description                                             |
+| ----------------------- | ---------- | ------------------------------------------------------- |
+| `PULSE_SIGNAL_SECRET`   | Yes (prod) | Bearer token that protects `POST /signal`               |
+| `NEW_RELIC_LICENSE_KEY` | No         | Enables New Relic reporting; absent = reporting is off  |
+| `NEW_RELIC_ACCOUNT_ID`  | No         | Plain var in `wrangler.toml`, defaults to the EU account |
 
-Set it as a [Worker secret](https://developers.cloudflare.com/workers/configuration/secrets/):
+Set the secrets as [Worker secrets](https://developers.cloudflare.com/workers/configuration/secrets/):
 
 ```sh
 wrangler secret put PULSE_SIGNAL_SECRET
 ```
+
+```sh
+wrangler secret put NEW_RELIC_LICENSE_KEY
+```
+
+## Monitoring
+
+The New Relic Node APM agent cannot run in a Worker — it is CommonJS, spawns
+background harvest timers and reads Node internals that a V8 isolate does not
+have. So [src/newrelic.js](src/newrelic.js) posts custom events straight to the
+Event API over `fetch`, with no dependency and nothing added to the bundle.
+
+One `PulseWorkerRequest` event per invocation, sent via `ctx.waitUntil` so
+ingest never sits in the request path: `path`, `method`, `status`,
+`durationMs`, `colo`, `country`, and — on `POST /signal` — `subscribers`, the
+number of sockets the room actually delivered to. A signal that fans out to
+zero subscribers means nobody is watching the map.
+
+```sql
+SELECT count(*) FROM PulseWorkerRequest FACET path, status SINCE 1 hour ago
+SELECT average(subscribers) FROM PulseWorkerRequest WHERE path = '/signal' TIMESERIES
+```
+
+The account is in New Relic's **EU** region: ingest goes to
+`insights-collector.eu01.nr-data.net` and the key is the 40-character licence
+key starting `eu01xx`, not an `NRAK-...` user API key.
 
 ## Development
 
