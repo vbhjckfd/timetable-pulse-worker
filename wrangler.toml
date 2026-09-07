@@ -31,10 +31,15 @@ tag = "v1"
 new_sqlite_classes = ["PulseRoom"]
 
 # Applied per client IP to the public surface only — see src/index.js, which
-# exempts the authenticated /signal producer.  10/minute is far above what a
-# browser opening one socket per tab needs, and low enough to cap a client stuck
-# in a reconnect loop.
+# exempts the authenticated /signal producer.
+#
+# Keyed on IP, and Ukrainian mobile carriers put many subscribers behind one
+# CGNAT address, so the budget is shared by strangers rather than spent by one
+# person.  /ws costs one connection per tab, so 30/minute still caps a client
+# stuck in a reconnect loop while leaving room for a dozen real users sharing an
+# address.  No legitimate client has been limited at 10 — this is headroom, not
+# a fix.
 [[ratelimits]]
 name = "RATE_LIMITER"
 namespace_id = "1"
-simple = { limit = 10, period = 60 }
+simple = { limit = 30, period = 60 }
