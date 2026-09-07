@@ -31,6 +31,10 @@ export default {
       const subscribers = response.headers.get('X-Pulse-Subscribers');
       ctx.waitUntil(recordEvent(env, 'PulseWorkerRequest', {
         path: url.pathname,
+        // Which hostname served this. Distinguishes the custom domain from the
+        // workers.dev one during the migration: workers_dev cannot be turned
+        // off until this stops reporting the old host.
+        host: url.hostname,
         method: request.method,
         status: response.status,
         durationMs: Date.now() - started,
