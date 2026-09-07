@@ -2,11 +2,11 @@ name = "timetable-pulse"
 main = "src/index.js"
 compatibility_date = "2024-09-23"
 
-# Keep the workers.dev hostname alive until every client has moved to the
-# custom domain below.  Flip to false in a follow-up deploy: the moment it goes,
-# timetable-pulse.vbhjckfd.workers.dev stops resolving, and any frontend build
-# or API deploy still holding that URL loses the pulse feed with no fallback.
-workers_dev = true
+# The frontend and API both build against the custom domain below, so the
+# workers.dev hostname is closed.  Reaching the Worker now requires going
+# through the lad.lviv.ua zone, which is what puts it behind WAF rules, Rate
+# Limiting Rules and Bot Fight Mode instead of bypassing all of them.
+workers_dev = false
 
 # The custom domain puts the Worker on the lad.lviv.ua zone, which is what makes
 # zone-level protection reachable at all: WAF custom rules, Rate Limiting Rules,
