@@ -2,6 +2,21 @@ name = "timetable-pulse"
 main = "src/index.js"
 compatibility_date = "2024-09-23"
 
+# Keep the workers.dev hostname alive until every client has moved to the
+# custom domain below.  Flip to false in a follow-up deploy: the moment it goes,
+# timetable-pulse.vbhjckfd.workers.dev stops resolving, and any frontend build
+# or API deploy still holding that URL loses the pulse feed with no fallback.
+workers_dev = true
+
+# The custom domain puts the Worker on the lad.lviv.ua zone, which is what makes
+# zone-level protection reachable at all: WAF custom rules, Rate Limiting Rules,
+# Bot Fight Mode and Turnstile are all zone features and none of them apply to a
+# *.workers.dev hostname.  It also survives the corporate and mobile networks
+# that blanket-block workers.dev.
+[[routes]]
+pattern = "pulse.lad.lviv.ua"
+custom_domain = true
+
 [vars]
 # New Relic EU account. The ingest licence key itself is a secret:
 #   wrangler secret put NEW_RELIC_LICENSE_KEY
@@ -15,8 +30,11 @@ class_name = "PulseRoom"
 tag = "v1"
 new_sqlite_classes = ["PulseRoom"]
 
-[[unsafe.bindings]]
+# Applied per client IP to the public surface only — see src/index.js, which
+# exempts the authenticated /signal producer.  10/minute is far above what a
+# browser opening one socket per tab needs, and low enough to cap a client stuck
+# in a reconnect loop.
+[[ratelimits]]
 name = "RATE_LIMITER"
-type = "ratelimit"
 namespace_id = "1"
 simple = { limit = 10, period = 60 }
