@@ -7,6 +7,8 @@ const ALLOWED_ORIGINS = [
   'https://lad.lviv.ua',
   'http://localhost:3000',
   'http://localhost:3001',
+  // `vike dev` in timetable-frontend defaults to PORT 8080.
+  'http://localhost:8080',
 ];
 
 function withCors(request, response) {
